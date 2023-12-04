@@ -44,5 +44,3 @@ def delete_student(id):
             
         return {"error": 404}
         
-  
-app.run()
