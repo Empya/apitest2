@@ -31,7 +31,7 @@ def add():
     if request.is_json:
         new = request.get_json
         dict.append(new)
-        return new, 201
+        return jsonify({"done":str(new)})
     
     else:
         return {"FAILED":"failed"}
