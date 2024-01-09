@@ -1,37 +1,69 @@
-
-from flask import Flask, jsonify
-
+import json
+from flask import Flask, jsonify, request
 app = Flask(__name__)
 
-dict =[
-{"name":1},{"name":2},{"name":3}
+employees = [
+ { 'id': 1, 'name': 'Ashley' },
+ { 'id': 2, 'name': 'Kate' },
+ { 'id': 3, 'name': 'Joe' }
 ]
 
 
-@app.get("/all")
+nextEmployeeId = 4
+3
+@app.route('/employees', methods=['GET'])
+def get_employees():
+ return jsonify(employees)
 
-def showall(): 
-    return jsonify(dict)
-    
-@app.get("/<int:id>")  
+@app.route('/employees/<int:id>', methods=['GET'])
+def get_employee_by_id(id: int):
+ employee = get_employee(id)
+ if employee is None:
+   return jsonify({ 'error': 'Employee does not exist'}), 404
+ return jsonify(employee)
 
-def showany(id):
-    a = None
-    for any in dict:
-        if any["name"] == id:
-            print(any)
-            a = any
-            
-    return a
-    
-@app.post("/", methods=["POST","GET"])
+def get_employee(id):
+ return next((e for e in employees if e['id'] == id), None)
 
-def add():
-    
-    if request.is_json:
-        new = request.get_json
-        dict.append(new)
-        return jsonify({"done":str(new)})
-    
-    else:
-        return {"FAILED":"failed"}
+def employee_is_valid(employee):
+ for key in employee.keys():
+   if key != 'name':
+ 	return False
+ return True
+
+@app.route('/employees', methods=['POST'])
+def create_employee():
+ global nextEmployeeId
+ employee = json.loads(request.data)
+ if not employee_is_valid(employee):
+   return jsonify({ 'error': 'Invalid employee properties.' }), 400
+
+ employee['id'] = nextEmployeeId
+ nextEmployeeId += 1
+ employees.append(employee)
+
+ return '', 201, { 'location': f'/employees/{employee["id"]}' }
+
+@app.route('/employees/<int:id>', methods=['PUT'])
+def update_employee(id: int):
+ employee = get_employee(id)
+ if employee is None:
+   return jsonify({ 'error': 'Employee does not exist.' }), 404
+
+ updated_employee = json.loads(request.data)
+ if not employee_is_valid(updated_employee):
+   return jsonify({ 'error': 'Invalid employee properties.' }), 400
+
+ employee.update(updated_employee)
+
+ return jsonify(employee)
+
+@app.route('/employees/<int:id>', methods=['DELETE'])
+def delete_employee(id: int):
+ global employees
+ employee = get_employee(id)
+ if employee is None:
+   return jsonify({ 'error': 'Employee does not exist.' }), 404
+
+ employees = [e for e in employees if e['id'] != id]
+ return jsonify(employee), 200
