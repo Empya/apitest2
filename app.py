@@ -24,7 +24,7 @@ def showany(id):
             
     return a
     
-@app.post("/")
+@app.post("/", methods=["POST","GET"])
 
 def add():
     
@@ -34,4 +34,4 @@ def add():
         return new, 201
     
     else:
-        return "FAILED"
+        return {"FAILED":"failed"}
