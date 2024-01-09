@@ -1,46 +1,37 @@
-from flask import Flask, jsonify, request
+
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-all_students = [
-{"id":1, "name": "a"},
-{"id":2, "name": "b"},
-{"id":3, "name": "c"},
-{"id":4, "name": "d"},
-{"id":5, "name": "e"},
-{"id":6, "name": "f"}
+dict =[
+{"name":1},{"name":2},{"name":3}
 ]
-print(dir(all_students))
 
-@app.get("/students")
 
-def get_students():
-    return jsonify(all_students)
+@app.get("/all")
+
+def showall(): 
+    return jsonify(dict)
     
+@app.get("/<int:id>")  
 
-@app.get("/students/<int:id>")
+def showany(id):
+    a = None
+    for any in dict:
+        if any["name"] == id:
+            print(any)
+            a = any
+            
+    return a
+    
+@app.post("/")
 
-def get_student(id): 
+def add():
+    
     if request.is_json:
-        for student in all_students: 
-            if student["id"] == id:
-                return student
-            
-            else:
-          
-                return {"error": " Not Found", "code": " 404"}
-
+        new = request.get_json
+        dict.append(new)
+        return new, 201
+    
     else:
-        return {"error":"Not json request"}
- 
- 
-@app.delete("/students/<int:id>")
-
-def delete_student(id):
-    for data in all_students:
-        if data["id"] == id:
-            all_students.remove(data)
-            return jsonify(all_students)
-            
-        return {"error": 404}
-        
+        return "FAILED"
